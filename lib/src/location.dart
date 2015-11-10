@@ -83,9 +83,9 @@ class Location {
   /// January 1, 1970 00:00:00 to UTC.
   int translateToUtc(int millisecondsSinceEpoch) {
     final t = lookupTimeZone(millisecondsSinceEpoch);
-    final tz = t.i1;
-    final start = t.i2;
-    final end = t.i3;
+    final tz = t.item1;
+    final start = t.item2;
+    final end = t.item3;
 
     var utc = millisecondsSinceEpoch;
 
@@ -93,9 +93,9 @@ class Location {
       utc -= tz.offset;
 
       if (utc < start) {
-        utc = millisecondsSinceEpoch - lookupTimeZone(start - 1).i1.offset;
+        utc = millisecondsSinceEpoch - lookupTimeZone(start - 1).item1.offset;
       } else if (utc >= end) {
-        utc = millisecondsSinceEpoch - lookupTimeZone(end).i1.offset;
+        utc = millisecondsSinceEpoch - lookupTimeZone(end).item1.offset;
       }
     }
 
@@ -104,22 +104,22 @@ class Location {
 
   /// lookup for [TimeZone] and its boundaries for an instant in time expressed
   /// as milliseconds since January 1, 1970 00:00:00 UTC.
-  PersistentTuple3<TimeZone, int, int> lookupTimeZone(int millisecondsSinceEpoch) {
+  Tuple3<TimeZone, int, int> lookupTimeZone(int millisecondsSinceEpoch) {
     if (zones.isEmpty) {
-      return const PersistentTuple3(const TimeZone(0, false, 'UTC'), minTime, maxTime);
+      return const Tuple3(const TimeZone(0, false, 'UTC'), minTime, maxTime);
     }
 
     if (_cacheZone != null &&
         millisecondsSinceEpoch >= _cacheStart &&
         millisecondsSinceEpoch < _cacheEnd) {
-      return new PersistentTuple3(_cacheZone, _cacheStart, _cacheEnd);
+      return new Tuple3(_cacheZone, _cacheStart, _cacheEnd);
     }
 
     if (transitionAt.isEmpty || millisecondsSinceEpoch < transitionAt[0]) {
       final zone = _firstZone();
       final start = minTime;
       final end = transitionAt.isEmpty ? maxTime : transitionAt.first;
-      return new PersistentTuple3(zone, start, end);
+      return new Tuple3(zone, start, end);
     }
 
     // Binary search for entry with largest millisecondsSinceEpoch <= sec.
@@ -139,30 +139,30 @@ class Location {
       }
     }
 
-    return new PersistentTuple3(zones[transitionZone[lo]], transitionAt[lo], end);
+    return new Tuple3(zones[transitionZone[lo]], transitionAt[lo], end);
   }
 
   /// timeZone method returns [TimeZone] in use at an instant in time expressed
   /// as milliseconds since January 1, 1970 00:00:00 UTC.
   TimeZone timeZone(int millisecondsSinceEpoch) {
-    return lookupTimeZone(millisecondsSinceEpoch).i1;
+    return lookupTimeZone(millisecondsSinceEpoch).item1;
   }
 
   /// timeZoneFromLocal method returns [TimeZone] in use at an instant in time
   /// expressed as milliseconds since January 1, 1970 00:00:00.
   TimeZone timeZoneFromLocal(int millisecondsSinceEpoch) {
     final t = lookupTimeZone(millisecondsSinceEpoch);
-    var tz = t.i1;
-    final start = t.i2;
-    final end = t.i3;
+    var tz = t.item1;
+    final start = t.item2;
+    final end = t.item3;
 
     if (tz.offset != 0) {
       final utc = millisecondsSinceEpoch - tz.offset;
 
       if (utc < start) {
-        tz = lookupTimeZone(start - 1).i1;
+        tz = lookupTimeZone(start - 1).item1;
       } else if (utc >= end) {
-        tz = lookupTimeZone(end).i1;
+        tz = lookupTimeZone(end).item1;
       }
     }
 

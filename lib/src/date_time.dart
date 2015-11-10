@@ -88,14 +88,14 @@ class TZDateTime implements DateTime {
     } else {
       var unix = _localDateTime.millisecondsSinceEpoch;
       var tzData = _location.lookupTimeZone(unix);
-      if (tzData.i1.offset != 0) {
-        final utc = unix - tzData.i1.offset;
-        if (utc < tzData.i2) {
-          tzData = _location.lookupTimeZone(tzData.i2 - 1);
-        } else if (utc >= tzData.i3) {
-          tzData = _location.lookupTimeZone(tzData.i3);
+      if (tzData.item1.offset != 0) {
+        final utc = unix - tzData.item1.offset;
+        if (utc < tzData.item2) {
+          tzData = _location.lookupTimeZone(tzData.item2- 1);
+        } else if (utc >= tzData.item3) {
+          tzData = _location.lookupTimeZone(tzData.item3);
         }
-        unix -= tzData.i1.offset;
+        unix -= tzData.item1.offset;
       }
       _millisecondsSinceEpoch = unix;
 
